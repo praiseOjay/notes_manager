@@ -1,29 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:notes_manager/screens/home_screen.dart';
+import 'package:notes_manager/screens/settings_screen.dart';
+import 'package:notes_manager/screens/task_list_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'models/task.dart';
-import 'providers/task_provider.dart';
-import 'providers/theme_provider.dart';
-import 'screens/home_screen.dart';
-import 'services/notification_service.dart';
+import 'screens/splash_screen.dart';
+import 'utils/theme_manager.dart';
+import 'screens/add_edit_screen.dart'; // Import your AddTaskScreen
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize Hive for local storage
-  await Hive.initFlutter();
-  Hive.registerAdapter(TaskAdapter());
-  await Hive.openBox<Task>('tasks');
-  
-  // Initialize notifications
-  await NotificationService().init();
-
+void main() {
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => TaskProvider()),
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-      ],
+    ChangeNotifierProvider(
+      create: (context) => ThemeManager(),
       child: MyApp(),
     ),
   );
@@ -32,17 +19,36 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, child) {
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
         return MaterialApp(
-          title: 'Task Manager',
-          theme: themeProvider.lightTheme,
-          darkTheme: themeProvider.darkTheme,
-          themeMode: themeProvider.themeMode,
-          home: HomeScreen(),
+          title: 'Task Management App',
+          theme: themeManager.themeData,
+          home: SplashScreen(),
+          onGenerateRoute: (settings) {
+            switch (settings.name) {
+              case '/':
+                return MaterialPageRoute(builder: (_) => SplashScreen());
+              case '/home':
+                return MaterialPageRoute(builder: (_) => TaskListScreen());
+              case '/task_list':
+                return MaterialPageRoute(builder: (_) => TaskListScreen());
+              case '/add_task':
+                return MaterialPageRoute(builder: (_) => AddEditTaskScreen());
+              case '/settings':
+                return MaterialPageRoute(builder: (_) => SettingsScreen());
+              default:
+                return MaterialPageRoute(
+                  builder: (_) => Scaffold(
+                    body: Center(
+                      child: Text('No route defined for ${settings.name}'),
+                    ),
+                  ),
+                );
+            }
+          },
         );
       },
     );
   }
 }
-

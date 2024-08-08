@@ -1,84 +1,135 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/task_provider.dart';
-import '../providers/theme_provider.dart';
+import '../widgets/drawer_menu.dart';
+import '../widgets/task_card.dart';
+import '../services/database_service.dart';
 import '../models/task.dart';
-import 'task_detail_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final DatabaseService _databaseService = DatabaseService();
+  List<Task> _tasks = [];
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTasks();
+  }
+
+  void _loadTasks() async {
+    final tasks = await _databaseService.getTasks();
+    setState(() {
+      _tasks = tasks;
+    });
+  }
+
+  List<Task> get _filteredTasks {
+    return _tasks.where((task) {
+      return task.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          task.description.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Task Manager'),
+        title: Text('Task Management'),
         actions: [
           IconButton(
-            icon: Icon(Icons.brightness_6),
+            icon: Icon(Icons.search),
             onPressed: () {
-              Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.sync),
-            onPressed: () {
-              Provider.of<TaskProvider>(context, listen: false).syncTasks();
+              showSearch(
+                context: context,
+                delegate: TaskSearchDelegate(this),
+              );
             },
           ),
         ],
       ),
-      body: Consumer<TaskProvider>(
-        builder: (context, taskProvider, child) {
-          return ListView.builder(
-            itemCount: taskProvider.tasks.length,
-            itemBuilder: (context, index) {
-              Task task = taskProvider.tasks[index];
-              return Dismissible(
-                key: Key(task.id),
-                background: Container(
-                  color: Colors.red,
-                  alignment: Alignment.centerRight,
-                  padding: EdgeInsets.only(right: 20.0),
-                  child: Icon(Icons.delete, color: Colors.white),
-                ),
-                direction: DismissDirection.endToStart,
-                onDismissed: (direction) {
-                  taskProvider.deleteTask(task.id);
-                },
-                child: ListTile(
-                  title: Text(task.title),
-                  subtitle: Text(task.description),
-                  trailing: Checkbox(
-                    value: task.isCompleted,
-                    onChanged: (bool? value) {
-                      task.isCompleted = value!;
-                      taskProvider.updateTask(task);
-                    },
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TaskDetailScreen(task: task),
-                      ),
-                    );
-                  },
-                ),
-              );
+      drawer: DrawerMenu(),
+      body: ListView.builder(
+        itemCount: _filteredTasks.length,
+        itemBuilder: (context, index) {
+          return TaskCard(
+            task: _filteredTasks[index],
+            onDelete: () async {
+              await _databaseService.deleteTask(_filteredTasks[index].id);
+              _loadTasks();
             },
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => TaskDetailScreen(),
-            ),
-          );
+          Navigator.pushNamed(context, '/add_task').then((_) => _loadTasks());
         },
         child: Icon(Icons.add),
       ),
+    );
+  }
+}
+
+class TaskSearchDelegate extends SearchDelegate<String> {
+  final _HomeScreenState homeScreenState;
+
+  TaskSearchDelegate(this.homeScreenState);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, '');
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    homeScreenState.setState(() {
+      homeScreenState._searchQuery = query;
+    });
+    return Container();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final suggestions = homeScreenState._tasks.where((task) {
+      return task.title.toLowerCase().contains(query.toLowerCase()) ||
+          task.description.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+
+    return ListView.builder(
+      itemCount: suggestions.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(suggestions[index].title),
+          subtitle: Text(suggestions[index].description),
+          onTap: () {
+            homeScreenState.setState(() {
+              homeScreenState._searchQuery = query;
+            });
+            close(context, '');
+          },
+        );
+      },
     );
   }
 }
