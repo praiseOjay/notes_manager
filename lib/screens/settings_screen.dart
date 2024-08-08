@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../utils/theme_manager.dart';
 import '../services/sync_service.dart';
+import '../widgets/custom_app_bar.dart';
+import '../widgets/drawer_menu.dart';
 
 class SettingsScreen extends StatelessWidget {
   @override
@@ -10,9 +12,8 @@ class SettingsScreen extends StatelessWidget {
     final syncService = SyncService();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Settings'),
-      ),
+      appBar: CustomAppBar(title: 'Settings', context: context),
+      drawer: DrawerMenu(),
       body: ListView(
         children: [
           ListTile(
@@ -24,7 +25,7 @@ class SettingsScreen extends StatelessWidget {
               },
             ),
           ),
-                   ListTile(
+          ListTile(
             title: Text('Theme Color'),
             trailing: DropdownButton<MaterialColor>(
               value: themeManager.primaryColor,
