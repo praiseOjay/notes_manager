@@ -4,7 +4,10 @@ import '../widgets/task_card.dart';
 import '../services/database_service.dart';
 import '../models/task.dart';
 
+/// The main screen of the app, displaying a list of tasks and search functionality.
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -20,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadTasks();
   }
 
+  /// Loads tasks from the database and updates the state.
   void _loadTasks() async {
     final tasks = await _databaseService.getTasks();
     setState(() {
@@ -27,10 +31,12 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  /// Returns a filtered list of tasks based on the current search query.
   List<Task> get _filteredTasks {
     return _tasks.where((task) {
-      return task.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          task.description.toLowerCase().contains(_searchQuery.toLowerCase());
+      final lowercaseQuery = _searchQuery.toLowerCase();
+      return task.title.toLowerCase().contains(lowercaseQuery) ||
+          task.description.toLowerCase().contains(lowercaseQuery);
     }).toList();
   }
 
@@ -38,10 +44,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Task Management'),
+        title: const Text('Task Management'),
         actions: [
           IconButton(
-            icon: Icon(Icons.search),
+            icon: const Icon(Icons.search),
             onPressed: () {
               showSearch(
                 context: context,
@@ -51,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      drawer: DrawerMenu(),
+      drawer: const DrawerMenu(),
       body: ListView.builder(
         itemCount: _filteredTasks.length,
         itemBuilder: (context, index) {
@@ -68,12 +74,13 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () {
           Navigator.pushNamed(context, '/add_task').then((_) => _loadTasks());
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
 }
 
+/// A search delegate for searching tasks.
 class TaskSearchDelegate extends SearchDelegate<String> {
   final _HomeScreenState homeScreenState;
 
@@ -83,7 +90,7 @@ class TaskSearchDelegate extends SearchDelegate<String> {
   List<Widget> buildActions(BuildContext context) {
     return [
       IconButton(
-        icon: Icon(Icons.clear),
+        icon: const Icon(Icons.clear),
         onPressed: () {
           query = '';
         },
@@ -94,7 +101,7 @@ class TaskSearchDelegate extends SearchDelegate<String> {
   @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.arrow_back),
+      icon: const Icon(Icons.arrow_back),
       onPressed: () {
         close(context, '');
       },
@@ -112,8 +119,9 @@ class TaskSearchDelegate extends SearchDelegate<String> {
   @override
   Widget buildSuggestions(BuildContext context) {
     final suggestions = homeScreenState._tasks.where((task) {
-      return task.title.toLowerCase().contains(query.toLowerCase()) ||
-          task.description.toLowerCase().contains(query.toLowerCase());
+      final lowercaseQuery = query.toLowerCase();
+      return task.title.toLowerCase().contains(lowercaseQuery) ||
+          task.description.toLowerCase().contains(lowercaseQuery);
     }).toList();
 
     return ListView.builder(

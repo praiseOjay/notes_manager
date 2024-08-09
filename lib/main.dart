@@ -4,19 +4,23 @@ import 'package:notes_manager/screens/home_screen.dart';
 import 'package:notes_manager/screens/task_list_screen.dart';
 import 'package:provider/provider.dart';
 import 'screens/splash_screen.dart';
-import 'screens/settings_screen.dart'; // Import your SettingsScreen
+import 'screens/settings_screen.dart';
 import 'utils/theme_manager.dart';
 
+/// The main entry point of the application.
 void main() {
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeManager(),
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
 
+/// The root widget of the application.
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeManager>(
@@ -26,15 +30,17 @@ class MyApp extends StatelessWidget {
           theme: themeManager.themeData,
           initialRoute: '/',
           routes: {
-            '/': (context) => SplashScreen(),
-            '/home': (context) => HomeScreen(),
-            '/task_list': (context) => TaskListScreen(),
-            '/settings': (context) => SettingsScreen(),
-            '/add_task': (context) => AddEditTaskScreen()
-
+            '/': (context) => const SplashScreen(),
+            '/home': (context) => const HomeScreen(),
+            '/task_list': (context) => const TaskListScreen(),
+            '/settings': (context) => const SettingsScreen(),
+            '/add_task': (context) => const AddEditTaskScreen()
           },
         );
       },
     );
   }
 }
+
+
+

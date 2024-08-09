@@ -2,20 +2,25 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/task.dart';
 
+/// Service class for managing database operations related to tasks.
 class DatabaseService {
   static final DatabaseService _instance = DatabaseService._internal();
   static Database? _database;
 
+  // Factory constructor to return the same instance every time
   factory DatabaseService() => _instance;
 
+  // Private constructor
   DatabaseService._internal();
 
+  /// Getter for the database instance. Creates the database if it doesn't exist.
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database!;
   }
 
+  /// Initializes the database by creating the tasks table.
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), 'task_manager.db');
     return await openDatabase(
@@ -36,20 +41,21 @@ class DatabaseService {
     );
   }
 
+  /// Inserts a new task into the database or replaces an existing one.
   Future<void> insertTask(Task task) async {
     final db = await database;
     await db.insert('tasks', task.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
+  /// Retrieves all tasks from the database.
   Future<List<Task>> getTasks() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query('tasks');
-    return List.generate(maps.length, (i) {
-      return Task.fromMap(maps[i]);
-    });
+    return List.generate(maps.length, (i) => Task.fromMap(maps[i]));
   }
 
+  /// Updates an existing task in the database.
   Future<void> updateTask(Task task) async {
     final db = await database;
     await db.update(
@@ -60,6 +66,7 @@ class DatabaseService {
     );
   }
 
+  /// Deletes a task from the database by its ID.
   Future<void> deleteTask(String id) async {
     final db = await database;
     await db.delete(

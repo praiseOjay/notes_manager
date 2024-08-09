@@ -4,7 +4,10 @@ import '../widgets/task_card.dart';
 import '../services/database_service.dart';
 import '../models/task.dart';
 
+/// A screen that displays a list of tasks with filtering options.
 class TaskListScreen extends StatefulWidget {
+  const TaskListScreen({super.key});
+
   @override
   _TaskListScreenState createState() => _TaskListScreenState();
 }
@@ -21,6 +24,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
     _loadTasks();
   }
 
+  /// Loads tasks from the database and updates the state.
   void _loadTasks() async {
     final tasks = await _databaseService.getTasks();
     setState(() {
@@ -28,6 +32,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
     });
   }
 
+  /// Returns a filtered list of tasks based on selected category and priority.
   List<Task> get _filteredTasks {
     return _tasks.where((task) {
       bool categoryMatch = _selectedCategory == 'All' || task.category == _selectedCategory;
@@ -40,23 +45,46 @@ class _TaskListScreenState extends State<TaskListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Task List'),
+        title: const Text('Task List'),
       ),
-      drawer: DrawerMenu(),
+      drawer: const DrawerMenu(),
       body: Column(
         children: [
           _buildFilterOptions(),
           Expanded(
-            child: ListView.builder(
-              itemCount: _filteredTasks.length,
-              itemBuilder: (context, index) {
-                return TaskCard(
-                  task: _filteredTasks[index],
-                  onDelete: () async {
-                    await _databaseService.deleteTask(_filteredTasks[index].id);
-                    _loadTasks();
-                  },
-                );
+            child: _buildTaskList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Builds the filter options for category and priority.
+  Widget _buildFilterOptions() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildDropdown(
+              value: _selectedCategory,
+              items: ['All', 'Work', 'Personal', 'Shopping', 'Other'],
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedCategory = newValue!;
+                });
+              },
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: _buildDropdown(
+              value: _selectedPriority,
+              items: ['All', 'Low', 'Medium', 'High'],
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedPriority = newValue!;
+                });
               },
             ),
           ),
@@ -65,48 +93,38 @@ class _TaskListScreenState extends State<TaskListScreen> {
     );
   }
 
-  Widget _buildFilterOptions() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: DropdownButton<String>(
-              value: _selectedCategory,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedCategory = newValue!;
-                });
-              },
-              items: <String>['All', 'Work', 'Personal', 'Shopping', 'Other']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: DropdownButton<String>(
-              value: _selectedPriority,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedPriority = newValue!;
-                });
-              },
-              items: <String>['All', 'Low', 'Medium', 'High']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
+  /// Builds a dropdown button with the given parameters.
+  Widget _buildDropdown({
+    required String value,
+    required List<String> items,
+    required void Function(String?) onChanged,
+  }) {
+    return DropdownButton<String>(
+      value: value,
+      onChanged: onChanged,
+      items: items.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+  }
+
+  /// Builds the list of filtered tasks.
+  Widget _buildTaskList() {
+    return ListView.builder(
+      itemCount: _filteredTasks.length,
+      itemBuilder: (context, index) {
+        return TaskCard(
+          task: _filteredTasks[index],
+          onDelete: () async {
+            await _databaseService.deleteTask(_filteredTasks[index].id);
+            _loadTasks();
+          },
+        );
+      },
     );
   }
 }
+

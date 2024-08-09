@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+/// A drawer menu widget providing navigation options for the app.
 class DrawerMenu extends StatelessWidget {
+  const DrawerMenu({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -11,7 +14,7 @@ class DrawerMenu extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor,
             ),
-            child: Text(
+            child: const Text(
               'Task Management App',
               style: TextStyle(
                 color: Colors.white,
@@ -19,29 +22,42 @@ class DrawerMenu extends StatelessWidget {
               ),
             ),
           ),
-          ListTile(
-            leading: Icon(Icons.home),
-            title: Text('Home'),
-            onTap: () {
-              Navigator.pushReplacementNamed(context, '/home');
-            },
+          _buildDrawerItem(
+            icon: Icons.home,
+            title: 'Home',
+            onTap: () => _navigateTo(context, '/home'),
           ),
-          ListTile(
-            leading: Icon(Icons.list),
-            title: Text('Task List'),
-            onTap: () {
-              Navigator.pushReplacementNamed(context, '/task_list');
-            },
+          _buildDrawerItem(
+            icon: Icons.list,
+            title: 'Task List',
+            onTap: () => _navigateTo(context, '/task_list'),
           ),
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Settings'),
-            onTap: () {
-              Navigator.pushReplacementNamed(context, '/settings');
-            },
+          _buildDrawerItem(
+            icon: Icons.settings,
+            title: 'Settings',
+            onTap: () => _navigateTo(context, '/settings'),
           ),
         ],
       ),
     );
+  }
+
+  /// Builds a drawer item with an icon, title, and onTap function.
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(title),
+      onTap: onTap,
+    );
+  }
+
+  /// Navigates to the specified route and closes the drawer.
+  void _navigateTo(BuildContext context, String routeName) {
+    Navigator.pop(context); // Close the drawer
+    Navigator.pushReplacementNamed(context, routeName);
   }
 }

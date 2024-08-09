@@ -1,3 +1,4 @@
+/// Represents a task in the task management application.
 class Task {
   final String id;
   String title;
@@ -15,6 +16,7 @@ class Task {
     this.isCompleted = false,
   });
 
+  /// Converts the Task object to a Map for database operations.
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -26,6 +28,7 @@ class Task {
     };
   }
 
+  /// Creates a Task object from a Map, typically used when reading from the database.
   static Task fromMap(Map<String, dynamic> map) {
     return Task(
       id: map['id'],
@@ -37,4 +40,6 @@ class Task {
     );
   }
 }
+
+
 
