@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
             '/home': (context) => const HomeScreen(),
             '/task_list': (context) => const TaskListScreen(),
             '/settings': (context) => const SettingsScreen(),
-            '/add_task': (context) => const AddEditTaskScreen()
+            '/add_task': (context) => AddEditTaskScreen()
           },
         );
       },

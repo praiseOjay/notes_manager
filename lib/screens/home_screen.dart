@@ -15,7 +15,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final DatabaseService _databaseService = DatabaseService();
   List<Task> _tasks = [];
-  String _searchQuery = '';
 
   @override
   void initState() {
@@ -31,14 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  /// Returns a filtered list of tasks based on the current search query.
-  List<Task> get _filteredTasks {
-    return _tasks.where((task) {
-      final lowercaseQuery = _searchQuery.toLowerCase();
-      return task.title.toLowerCase().contains(lowercaseQuery) ||
-          task.description.toLowerCase().contains(lowercaseQuery);
-    }).toList();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,24 +43,13 @@ class _HomeScreenState extends State<HomeScreen> {
               showSearch(
                 context: context,
                 delegate: TaskSearchDelegate(this),
-              );
+              ).then((_) => _loadTasks()); // Reload tasks after search
             },
           ),
         ],
       ),
       drawer: const DrawerMenu(),
-      body: ListView.builder(
-        itemCount: _filteredTasks.length,
-        itemBuilder: (context, index) {
-          return TaskCard(
-            task: _filteredTasks[index],
-            onDelete: () async {
-              await _databaseService.deleteTask(_filteredTasks[index].id);
-              _loadTasks();
-            },
-          );
-        },
-      ),
+      body: _buildTaskList(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.pushNamed(context, '/add_task').then((_) => _loadTasks());
@@ -78,7 +58,71 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  Widget _buildTaskList() {
+    return ListView.builder(
+      itemCount: _tasks.length,
+      itemBuilder: (context, index) {
+        final task = _tasks[index];
+        return Dismissible(
+          key: Key(task.id),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            color: Colors.red,
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: const Icon(Icons.delete, color: Colors.white),
+          ),
+          onDismissed: (direction) {
+            setState(() {
+              _tasks.removeAt(index);
+            });
+            _databaseService.deleteTask(task.id).then((_) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Task deleted'),
+                  action: SnackBarAction(
+                    label: 'Undo',
+                    onPressed: () {
+                      _databaseService.insertTask(task).then((_) => _loadTasks());
+                    },
+                  ),
+                ),
+              );
+            });
+          },
+          child: TaskCard(
+            task: task,
+            onDelete: () async {
+              await _databaseService.deleteTask(task.id);
+              _loadTasks();
+            },
+            onToggleComplete: () async {
+              task.isCompleted = !task.isCompleted;
+              await _databaseService.updateTask(task);
+              _loadTasks();
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  void updateTasksBasedOnSearch(String query) {
+    if (query.isEmpty) {
+      _loadTasks(); // Reset to all tasks if query is empty
+    } else {
+      setState(() {
+        _tasks = _tasks.where((task) {
+          final lowercaseQuery = query.toLowerCase();
+          return task.title.toLowerCase().contains(lowercaseQuery) ||
+              task.description.toLowerCase().contains(lowercaseQuery);
+        }).toList();
+      });
+    }
+  }
 }
+
 
 /// A search delegate for searching tasks.
 class TaskSearchDelegate extends SearchDelegate<String> {
@@ -93,6 +137,7 @@ class TaskSearchDelegate extends SearchDelegate<String> {
         icon: const Icon(Icons.clear),
         onPressed: () {
           query = '';
+          showSuggestions(context);
         },
       ),
     ];
@@ -110,10 +155,7 @@ class TaskSearchDelegate extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    homeScreenState.setState(() {
-      homeScreenState._searchQuery = query;
-    });
-    return Container();
+    return buildSuggestions(context);
   }
 
   @override
@@ -131,13 +173,18 @@ class TaskSearchDelegate extends SearchDelegate<String> {
           title: Text(suggestions[index].title),
           subtitle: Text(suggestions[index].description),
           onTap: () {
-            homeScreenState.setState(() {
-              homeScreenState._searchQuery = query;
-            });
-            close(context, '');
+            query = suggestions[index].title;
+            homeScreenState.updateTasksBasedOnSearch(query);
+            close(context, query);
           },
         );
       },
     );
+  }
+
+  @override
+  void close(BuildContext context, String result) {
+    homeScreenState.updateTasksBasedOnSearch('');
+    super.close(context, result);
   }
 }

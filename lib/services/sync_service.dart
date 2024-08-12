@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'database_service.dart';
@@ -27,7 +28,9 @@ class SyncService {
         throw Exception('Failed to sync data');
       }
     } catch (e) {
-      print('Error syncing data: $e');
+      if (kDebugMode) {
+        print('Error syncing data: $e');
+      }
       rethrow;
     }
   }

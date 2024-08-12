@@ -10,18 +10,7 @@ class DrawerMenu extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-            ),
-            child: const Text(
-              'Task Management App',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-              ),
-            ),
-          ),
+          _buildDrawerHeader(context),
           _buildDrawerItem(
             icon: Icons.home,
             title: 'Home',
@@ -32,10 +21,57 @@ class DrawerMenu extends StatelessWidget {
             title: 'Task List',
             onTap: () => _navigateTo(context, '/task_list'),
           ),
+          const Divider(),
           _buildDrawerItem(
             icon: Icons.settings,
             title: 'Settings',
             onTap: () => _navigateTo(context, '/settings'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Builds the drawer header with a gradient background and app logo.
+  Widget _buildDrawerHeader(BuildContext context) {
+    return DrawerHeader(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Theme.of(context).primaryColor,
+            Theme.of(context).primaryColor.withOpacity(0.7),
+          ],
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 30,
+            backgroundColor: Colors.white,
+            child: Icon(
+              Icons.check_circle_outline,
+              size: 40,
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'Task Management App',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            'Organize your tasks efficiently',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.8),
+              fontSize: 14,
+            ),
           ),
         ],
       ),
@@ -49,8 +85,11 @@ class DrawerMenu extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
+      leading: Icon(icon, color: Colors.blue[700]),
+      title: Text(
+        title,
+        style: const TextStyle(fontSize: 16),
+      ),
       onTap: onTap,
     );
   }

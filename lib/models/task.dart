@@ -1,3 +1,4 @@
+
 /// Represents a task in the task management application.
 class Task {
   final String id;
@@ -6,6 +7,8 @@ class Task {
   String category;
   String priority;
   bool isCompleted;
+  List<String> attachments; // New field for attachments
+  DateTime? dueDate;
 
   Task({
     required this.id,
@@ -14,6 +17,8 @@ class Task {
     required this.category,
     required this.priority,
     this.isCompleted = false,
+    this.attachments = const [], // Initialize with an empty list
+    this.dueDate,
   });
 
   /// Converts the Task object to a Map for database operations.
@@ -25,6 +30,8 @@ class Task {
       'category': category,
       'priority': priority,
       'isCompleted': isCompleted ? 1 : 0,
+      'attachments': attachments.join(','), // Store attachments as comma-separated string
+      'dueDate': dueDate?.toIso8601String(), // Convert DateTime to string
     };
   }
 
@@ -37,6 +44,8 @@ class Task {
       category: map['category'],
       priority: map['priority'],
       isCompleted: map['isCompleted'] == 1,
+      attachments: map['attachments']?.split(',') ?? [], // Convert string back to list
+      dueDate: map['dueDate'] != null ? DateTime.parse(map['dueDate']) : null, // Parse string to DateTime
     );
   }
 }

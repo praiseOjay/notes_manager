@@ -25,20 +25,35 @@ class DatabaseService {
     String path = join(await getDatabasesPath(), 'task_manager.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 3, // Increment the version number
       onCreate: (Database db, int version) async {
-        await db.execute('''
-          CREATE TABLE tasks(
-            id TEXT PRIMARY KEY,
-            title TEXT,
-            description TEXT,
-            category TEXT,
-            priority TEXT,
-            isCompleted INTEGER
-          )
-        ''');
+        await _createTasksTable(db);
+      },
+      onUpgrade: (Database db, int oldVersion, int newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute('ALTER TABLE tasks ADD COLUMN attachments TEXT');
+        }
+        if (oldVersion < 3) {
+          await db.execute('ALTER TABLE tasks ADD COLUMN dueDate TEXT');
+        }
       },
     );
+  }
+
+  /// Creates the tasks table in the database.
+  Future<void> _createTasksTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE tasks(
+        id TEXT PRIMARY KEY,
+        title TEXT,
+        description TEXT,
+        category TEXT,
+        priority TEXT,
+        isCompleted INTEGER,
+        attachments TEXT,
+        dueDate TEXT
+      )
+    ''');
   }
 
   /// Inserts a new task into the database or replaces an existing one.
@@ -74,5 +89,10 @@ class DatabaseService {
       where: 'id = ?',
       whereArgs: [id],
     );
+  }
+
+  Future<void> deleteAllTasks() async {
+    final db = await database;
+    await db.delete('tasks');
   }
 }

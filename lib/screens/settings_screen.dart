@@ -1,90 +1,132 @@
 import 'package:flutter/material.dart';
+import 'package:notes_manager/services/database_service.dart';
 import 'package:provider/provider.dart';
 import '../utils/theme_manager.dart';
-import '../services/sync_service.dart';
-import '../widgets/custom_app_bar.dart';
-import '../widgets/drawer_menu.dart';
 
-/// A screen for managing app settings.
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  _SettingsScreenState createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  final DatabaseService _databaseService = DatabaseService();
 
   @override
   Widget build(BuildContext context) {
     final themeManager = Provider.of<ThemeManager>(context);
-    final syncService = SyncService();
 
-    return Scaffold(
-      appBar: CustomAppBar(title: 'Settings', context: context),
-      drawer: const DrawerMenu(),
-      body: ListView(
-        children: [
-          _buildDarkModeSwitch(themeManager),
-          _buildThemeColorDropdown(themeManager),
-          _buildSyncDataButton(context, syncService),
-        ],
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (didPop) return;
+        _navigateBack(context);
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Settings'),
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => _navigateBack(context),
+          ),
+        ),
+        body: ListView(
+          children: [
+            _buildSectionHeader('Appearance'),
+            _buildSwitchTile(
+              title: 'Dark Mode',
+              value: themeManager.isDarkMode,
+              onChanged: (value) {
+                themeManager.toggleTheme();
+              },
+            ),
+            _buildActionTile(
+              title: 'Clear All Tasks',
+              icon: Icons.delete_forever,
+              onTap: () => _showClearTasksDialog(),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  /// Builds a switch for toggling dark mode.
-  Widget _buildDarkModeSwitch(ThemeManager themeManager) {
-    return ListTile(
-      title: const Text('Dark Mode'),
-      trailing: Switch(
-        value: themeManager.isDarkMode,
-        onChanged: (value) => themeManager.toggleTheme(),
-      ),
-    );
-  }
-
-  /// Builds a dropdown for selecting the theme color.
-  Widget _buildThemeColorDropdown(ThemeManager themeManager) {
-    return ListTile(
-      title: const Text('Theme Color'),
-      trailing: DropdownButton<MaterialColor>(
-        value: themeManager.primaryColor,
-        onChanged: (MaterialColor? newColor) {
-          if (newColor != null) {
-            themeManager.changePrimaryColor(newColor);
-          }
-        },
-        items: const [
-          DropdownMenuItem(value: Colors.blue, child: Text('Blue')),
-          DropdownMenuItem(value: Colors.green, child: Text('Green')),
-          DropdownMenuItem(value: Colors.red, child: Text('Red')),
-          DropdownMenuItem(value: Colors.purple, child: Text('Purple')),
-        ],
-      ),
-    );
-  }
-
-  /// Builds a button for syncing data.
-  Widget _buildSyncDataButton(BuildContext context, SyncService syncService) {
-    return ListTile(
-      title: const Text('Sync Data'),
-      trailing: ElevatedButton(
-        onPressed: () => _syncData(context, syncService),
-        child: const Text('Sync Now'),
-      ),
-    );
-  }
-
-  /// Attempts to sync data and shows a snackbar with the result.
-  void _syncData(BuildContext context, SyncService syncService) async {
-    try {
-      await syncService.syncData();
-      _showSnackBar(context, 'Data synced successfully');
-    } catch (e) {
-      _showSnackBar(context, 'Error syncing data: $e');
+  void _navigateBack(BuildContext context) {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else {
+      Navigator.pushReplacementNamed(context, '/home');
     }
   }
 
-  /// Shows a snackbar with the given message.
-  void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.blue[700],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSwitchTile({
+    required String title,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return ListTile(
+      title: Text(title),
+      trailing: Switch(
+        value: value,
+        onChanged: onChanged,
+        activeColor: Colors.blue,
+      ),
+    );
+  }
+
+  Widget _buildActionTile({
+    required String title,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      title: Text(title),
+      leading: Icon(icon, color: Colors.blue),
+      onTap: onTap,
+    );
+  }
+
+   void _showClearTasksDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Clear All Tasks'),
+          content: const Text('Are you sure you want to delete all tasks? This action cannot be undone.'),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: const Text('Clear'),
+              onPressed: () async {
+                await _databaseService.deleteAllTasks();
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('All tasks have been deleted')),
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
-
