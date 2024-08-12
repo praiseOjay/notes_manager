@@ -113,7 +113,11 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
   /// Builds the list of filtered tasks.
   Widget _buildTaskList() {
-    return ListView.builder(
+    return RefreshIndicator(
+      onRefresh: () async {
+        _loadTasks();
+      },
+      child: ListView.builder(
       itemCount: _filteredTasks.length,
       itemBuilder: (context, index) {
         final task = _filteredTasks[index];
@@ -159,6 +163,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
           ),
         );
       },
+      ),
     );
   }
 }

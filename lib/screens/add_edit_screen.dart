@@ -48,12 +48,16 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDarkMode ? Colors.white : Colors.black;
+    final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[100];
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.task == null ? 'Add Task' : 'Edit Task'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.save),
+            icon: Icon(Icons.save, color: textColor),
             onPressed: _submitForm,
           ),
         ],
@@ -70,6 +74,8 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
                   controller: _titleController,
                   label: 'Title',
                   icon: Icons.title,
+                  textColor: textColor,
+                  backgroundColor: backgroundColor,
                 ),
                 const SizedBox(height: 16),
                 _buildTextField(
@@ -77,15 +83,17 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
                   label: 'Description',
                   icon: Icons.description,
                   maxLines: 3,
+                  textColor: textColor,
+                  backgroundColor: backgroundColor,
                 ),
                 const SizedBox(height: 16),
-                _buildCategoryDropdown(),
+                _buildCategoryDropdown(textColor, backgroundColor),
                 const SizedBox(height: 16),
-                _buildPriorityDropdown(),
+                _buildPriorityDropdown(textColor, backgroundColor),
                 const SizedBox(height: 16),
-                _buildDueDatePicker(),
+                _buildDueDatePicker(textColor, backgroundColor),
                 const SizedBox(height: 16),
-                _buildAttachmentSection(),
+                _buildAttachmentSection(textColor, backgroundColor),
               ],
             ),
           ),
@@ -99,17 +107,30 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
     required String label,
     required IconData icon,
     int maxLines = 1,
+    required Color textColor,
+    required Color? backgroundColor,
   }) {
     return TextFormField(
       controller: controller,
+      style: TextStyle(color: textColor),
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon),
+        labelStyle: TextStyle(color: textColor),
+        prefixIcon: Icon(icon, color: textColor),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: textColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: textColor.withOpacity(0.5)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: textColor),
         ),
         filled: true,
-        fillColor: Colors.grey[100],
+        fillColor: backgroundColor,
       ),
       maxLines: maxLines,
       validator: (value) {
@@ -121,22 +142,34 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
     );
   }
 
-  Widget _buildCategoryDropdown() {
+  Widget _buildCategoryDropdown(Color textColor, Color? backgroundColor) {
     return DropdownButtonFormField<String>(
       value: _category,
+      style: TextStyle(color: textColor),
+      dropdownColor: backgroundColor,
       decoration: InputDecoration(
         labelText: 'Category',
-        prefixIcon: const Icon(Icons.category),
+        labelStyle: TextStyle(color: textColor),
+        prefixIcon: Icon(Icons.category, color: textColor),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: textColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: textColor.withOpacity(0.5)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: textColor),
         ),
         filled: true,
-        fillColor: Colors.grey[100],
+        fillColor: backgroundColor,
       ),
       items: _categories.map((String value) {
         return DropdownMenuItem<String>(
           value: value,
-          child: Text(value),
+          child: Text(value, style: TextStyle(color: textColor)),
         );
       }).toList(),
       onChanged: (value) => setState(() => _category = value!),
@@ -149,40 +182,62 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
     );
   }
 
-  Widget _buildPriorityDropdown() {
+  Widget _buildPriorityDropdown(Color textColor, Color? backgroundColor) {
     return DropdownButtonFormField<String>(
       value: _priority,
+      style: TextStyle(color: textColor),
+      dropdownColor: backgroundColor,
       decoration: InputDecoration(
         labelText: 'Priority',
-        prefixIcon: const Icon(Icons.flag),
+        labelStyle: TextStyle(color: textColor),
+        prefixIcon: Icon(Icons.flag, color: textColor),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: textColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: textColor.withOpacity(0.5)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: textColor),
         ),
         filled: true,
-        fillColor: Colors.grey[100],
+        fillColor: backgroundColor,
       ),
       items: ['Low', 'Medium', 'High'].map((String value) {
         return DropdownMenuItem<String>(
           value: value,
-          child: Text(value),
+          child: Text(value, style: TextStyle(color: textColor)),
         );
       }).toList(),
       onChanged: (value) => setState(() => _priority = value!),
     );
   }
 
-  Widget _buildDueDatePicker() {
+  Widget _buildDueDatePicker(Color textColor, Color? backgroundColor) {
     return InkWell(
       onTap: _pickDateTime,
       child: InputDecorator(
         decoration: InputDecoration(
           labelText: 'Due Date',
-          prefixIcon: const Icon(Icons.calendar_today),
+          labelStyle: TextStyle(color: textColor),
+          prefixIcon: Icon(Icons.calendar_today, color: textColor),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: textColor),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: textColor.withOpacity(0.5)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: textColor),
           ),
           filled: true,
-          fillColor: Colors.grey[100],
+          fillColor: backgroundColor,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -191,41 +246,41 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
               _dueDate != null
                   ? DateFormat('MMM d, y HH:mm').format(_dueDate!)
                   : 'Not set',
-              style: const TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16, color: textColor),
             ),
-            const Icon(Icons.arrow_drop_down),
+            Icon(Icons.arrow_drop_down, color: textColor),
           ],
         ),
       ),
     );
   }
 
-
-  Widget _buildAttachmentSection() {
+  Widget _buildAttachmentSection(Color textColor, Color? backgroundColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Attachments', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        Text('Attachments', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textColor)),
         const SizedBox(height: 8),
         if (_attachments.isNotEmpty)
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: backgroundColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Wrap(
               spacing: 8.0,
               runSpacing: 8.0,
-              children: _attachments.map((path) => _buildAttachmentChip(path)).toList(),
+              children: _attachments.map((path) => _buildAttachmentChip(path, textColor)).toList(),
             ),
           ),
         const SizedBox(height: 8),
         ElevatedButton.icon(
           onPressed: _pickFile,
-          icon: const Icon(Icons.attach_file),
-          label: const Text('Add Attachment'),
+          icon: Icon(Icons.attach_file, color: backgroundColor),
+          label: Text('Add Attachment', style: TextStyle(color: backgroundColor)),
           style: ElevatedButton.styleFrom(
+            backgroundColor: textColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -236,20 +291,22 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
     );
   }
 
-  Widget _buildAttachmentChip(String path) {
+  Widget _buildAttachmentChip(String path, Color textColor) {
     return Chip(
       label: Text(
         path.split('/').last,
-        style: const TextStyle(fontSize: 12),
+        style: TextStyle(fontSize: 12, color: textColor),
       ),
       onDeleted: () => setState(() => _attachments.remove(path)),
-      deleteIcon: const Icon(Icons.close, size: 16),
-      backgroundColor: Colors.blue[100],
+      deleteIcon: Icon(Icons.close, size: 16, color: textColor),
+      backgroundColor: textColor.withOpacity(0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: textColor.withOpacity(0.5)),
       ),
     );
   }
+
 
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
