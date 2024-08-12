@@ -88,46 +88,51 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Builds the list of tasks with pull-to-refresh and dismissible functionality
   Widget _buildTaskList() {
-    return RefreshIndicator(
-      onRefresh: () async {
-        _loadTasks();
-      },
-      child: ListView.builder(
-        itemCount: _filteredTasks.length,
-        itemBuilder: (context, index) {
-          return Dismissible(
-            key: Key(_filteredTasks[index].id),
-            direction: DismissDirection.endToStart,
-            background: Container(
-              color: Colors.red,
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: const Icon(Icons.delete, color: Colors.white),
-            ),
-            onDismissed: (direction) async {
-              await _databaseService.deleteTask(_filteredTasks[index].id);
-              setState(() {
-                _tasks.removeAt(index);
-              });
+    return ListView.builder(
+      itemCount: _filteredTasks.length,
+      itemBuilder: (context, index) {
+        final task = _tasks[index];
+        return Dismissible(
+          key: Key(task.id),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            color: Colors.red,
+            alignment: Alignment.centerRight,
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Icon(Icons.delete, color: Colors.white),
+          ),
+          onDismissed: (direction) {
+            setState(() {
+              _tasks.removeAt(index);
+            });
+            _databaseService.deleteTask(task.id).then((_) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Task deleted')),
+                SnackBar(
+                  content: Text('Task deleted'),
+                  action: SnackBarAction(
+                    label: 'Undo',
+                    onPressed: () {
+                      _databaseService.insertTask(task).then((_) => _loadTasks());
+                    },
+                  ),
+                ),
               );
+            });
+          },
+          child: TaskCard(
+            task: task,
+            onDelete: () async {
+              await _databaseService.deleteTask(task.id);
+              _loadTasks();
             },
-            child: TaskCard(
-              task: _filteredTasks[index],
-              onDelete: () async {
-                await _databaseService.deleteTask(_filteredTasks[index].id);
-                _loadTasks();
-              },
-              onToggleComplete: () async {
-                _filteredTasks[index].isCompleted = !_filteredTasks[index].isCompleted;
-                await _databaseService.updateTask(_filteredTasks[index]);
-                _loadTasks();
-              },
-            ),
-          );
-        },
-      ),
+            onToggleComplete: () async {
+              task.isCompleted = !task.isCompleted;
+              await _databaseService.updateTask(task);
+              _loadTasks();
+            },
+          ),
+        );
+      },
     );
   }
 }
