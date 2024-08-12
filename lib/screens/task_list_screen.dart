@@ -13,8 +13,11 @@ class TaskListScreen extends StatefulWidget {
 }
 
 class _TaskListScreenState extends State<TaskListScreen> {
+  // Service to interact with the database
   final DatabaseService _databaseService = DatabaseService();
+  // List to store all tasks
   List<Task> _tasks = [];
+  // Selected category and priority for filtering
   String _selectedCategory = 'All';
   String _selectedPriority = 'All';
 
@@ -118,53 +121,54 @@ class _TaskListScreenState extends State<TaskListScreen> {
         _loadTasks();
       },
       child: ListView.builder(
-      itemCount: _filteredTasks.length,
-      itemBuilder: (context, index) {
-        final task = _filteredTasks[index];
-        return Dismissible(
-          key: Key(task.id),
-          direction: DismissDirection.endToStart,
-          background: Container(
-            color: Colors.red,
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: const Icon(Icons.delete, color: Colors.white),
-          ),
-          onDismissed: (direction) {
-            setState(() {
-              _filteredTasks.removeAt(index);
-              _tasks.remove(task);
-            });
-            _databaseService.deleteTask(task.id).then((_) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('Task deleted'),
-                  action: SnackBarAction(
-                    label: 'Undo',
-                    onPressed: () {
-                      _databaseService.insertTask(task).then((_) => _loadTasks());
-                    },
+        itemCount: _filteredTasks.length,
+        itemBuilder: (context, index) {
+          final task = _filteredTasks[index];
+          return Dismissible(
+            key: Key(task.id),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              color: Colors.red,
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: const Icon(Icons.delete, color: Colors.white),
+            ),
+            onDismissed: (direction) {
+              // Remove task from lists and database
+              setState(() {
+                _filteredTasks.removeAt(index);
+                _tasks.remove(task);
+              });
+              _databaseService.deleteTask(task.id).then((_) {
+                // Show snackbar with undo option
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Task deleted'),
+                    action: SnackBarAction(
+                      label: 'Undo',
+                      onPressed: () {
+                        _databaseService.insertTask(task).then((_) => _loadTasks());
+                      },
+                    ),
                   ),
-                ),
-              );
-            });
-          },
-          child: TaskCard(
-            task: task,
-            onDelete: () async {
-              await _databaseService.deleteTask(task.id);
-              _loadTasks();
+                );
+              });
             },
-            onToggleComplete: () async {
-              task.isCompleted = !task.isCompleted;
-              await _databaseService.updateTask(task);
-              _loadTasks();
-            },
-          ),
-        );
-      },
+            child: TaskCard(
+              task: task,
+              onDelete: () async {
+                await _databaseService.deleteTask(task.id);
+                _loadTasks();
+              },
+              onToggleComplete: () async {
+                task.isCompleted = !task.isCompleted;
+                await _databaseService.updateTask(task);
+                _loadTasks();
+              },
+            ),
+          );
+        },
       ),
     );
   }
 }
-

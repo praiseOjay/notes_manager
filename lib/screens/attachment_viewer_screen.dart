@@ -9,7 +9,8 @@ class AttachmentViewerScreen extends StatefulWidget {
   final List<String> attachments;
   final int initialIndex;
 
-  const AttachmentViewerScreen({super.key, 
+  const AttachmentViewerScreen({
+    super.key, 
     required this.attachments,
     required this.initialIndex,
   });
@@ -52,11 +53,13 @@ class _AttachmentViewerScreenState extends State<AttachmentViewerScreen> {
     );
   }
 
+  /// Builds individual items in the gallery
   PhotoViewGalleryPageOptions _buildItem(BuildContext context, int index) {
     final attachment = widget.attachments[index];
     final file = File(attachment);
     
     if (_isImageFile(attachment)) {
+      // Display image files using PhotoView
       return PhotoViewGalleryPageOptions(
         imageProvider: FileImage(file),
         initialScale: PhotoViewComputedScale.contained,
@@ -64,6 +67,7 @@ class _AttachmentViewerScreenState extends State<AttachmentViewerScreen> {
         maxScale: PhotoViewComputedScale.covered * 2,
       );
     } else {
+      // Display non-image files with a generic icon and file name
       return PhotoViewGalleryPageOptions.customChild(
         child: Center(
           child: Column(
@@ -87,11 +91,13 @@ class _AttachmentViewerScreenState extends State<AttachmentViewerScreen> {
     }
   }
 
+  /// Checks if the file is an image based on its extension
   bool _isImageFile(String filePath) {
     final imageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
     return imageExtensions.any((ext) => filePath.toLowerCase().endsWith(ext));
   }
 
+  /// Opens the file using the appropriate application
   void _openFile(File file) {
     // Implement file opening logic here
     // You may want to use a plugin like open_file or url_launcher

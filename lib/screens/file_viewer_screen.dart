@@ -3,6 +3,7 @@ import 'package:open_file/open_file.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'dart:io';
 
+/// A screen for viewing different types of files
 class FileViewerScreen extends StatelessWidget {
   final String filePath;
 
@@ -20,9 +21,11 @@ class FileViewerScreen extends StatelessWidget {
     );
   }
 
+  /// Builds the appropriate viewer based on the file type
   Widget _buildFileViewer(BuildContext context, String extension) {
     switch (extension) {
       case 'pdf':
+        // Use PDFView for PDF files
         return PDFView(
           filePath: filePath,
           enableSwipe: true,
@@ -31,6 +34,7 @@ class FileViewerScreen extends StatelessWidget {
           pageFling: false,
         );
       case 'txt':
+        // Display text files in a scrollable text widget
         return FutureBuilder<String>(
           future: File(filePath).readAsString(),
           builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
@@ -48,6 +52,7 @@ class FileViewerScreen extends StatelessWidget {
           },
         );
       default:
+        // For other file types, provide a button to open the file externally
         return Center(
           child: ElevatedButton(
             child: const Text('Open File'),
@@ -57,6 +62,7 @@ class FileViewerScreen extends StatelessWidget {
     }
   }
 
+  /// Opens the file using the device's default application
   void _openFile(BuildContext context) async {
     final result = await OpenFile.open(filePath);
     if (result.type != ResultType.done) {

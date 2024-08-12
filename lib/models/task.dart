@@ -1,4 +1,3 @@
-
 /// Represents a task in the task management application.
 class Task {
   final String id;
@@ -7,9 +6,10 @@ class Task {
   String category;
   String priority;
   bool isCompleted;
-  List<String> attachments; // New field for attachments
+  List<String> attachments; // Stores file paths of attachments
   DateTime? dueDate;
 
+  /// Constructor for creating a Task object
   Task({
     required this.id,
     required this.title,
@@ -29,7 +29,7 @@ class Task {
       'description': description,
       'category': category,
       'priority': priority,
-      'isCompleted': isCompleted ? 1 : 0,
+      'isCompleted': isCompleted ? 1 : 0, // Convert boolean to integer
       'attachments': attachments.join(','), // Store attachments as comma-separated string
       'dueDate': dueDate?.toIso8601String(), // Convert DateTime to string
     };
@@ -43,12 +43,9 @@ class Task {
       description: map['description'],
       category: map['category'],
       priority: map['priority'],
-      isCompleted: map['isCompleted'] == 1,
+      isCompleted: map['isCompleted'] == 1, // Convert integer to boolean
       attachments: map['attachments']?.split(',') ?? [], // Convert string back to list
       dueDate: map['dueDate'] != null ? DateTime.parse(map['dueDate']) : null, // Parse string to DateTime
     );
   }
 }
-
-
-

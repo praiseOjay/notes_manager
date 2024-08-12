@@ -3,6 +3,7 @@ import 'package:notes_manager/services/database_service.dart';
 import 'package:provider/provider.dart';
 import '../utils/theme_manager.dart';
 
+/// Screen for managing app settings
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -11,13 +12,16 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  // Database service for task-related operations
   final DatabaseService _databaseService = DatabaseService();
 
   @override
   Widget build(BuildContext context) {
+    // Access the ThemeManager through Provider
     final themeManager = Provider.of<ThemeManager>(context);
 
     return PopScope(
+      // Prevent default back navigation
       canPop: false,
       onPopInvoked: (didPop) {
         if (didPop) return;
@@ -53,6 +57,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  /// Custom back navigation to handle cases where the screen can't be popped
   void _navigateBack(BuildContext context) {
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
@@ -61,6 +66,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  /// Builds a header for a settings section
   Widget _buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -75,6 +81,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  /// Builds a switch tile for toggling settings
   Widget _buildSwitchTile({
     required String title,
     required bool value,
@@ -90,6 +97,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  /// Builds an action tile for settings that perform an action when tapped
   Widget _buildActionTile({
     required String title,
     required IconData icon,
@@ -102,7 +110,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-   void _showClearTasksDialog() {
+  /// Shows a confirmation dialog for clearing all tasks
+  void _showClearTasksDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -117,8 +126,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             TextButton(
               child: const Text('Clear'),
               onPressed: () async {
+                // Delete all tasks from the database
                 await _databaseService.deleteAllTasks();
                 Navigator.of(context).pop();
+                // Show a confirmation snackbar
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('All tasks have been deleted')),
                 );

@@ -4,7 +4,9 @@ import '../models/task.dart';
 
 /// Service class for managing database operations related to tasks.
 class DatabaseService {
+  // Singleton instance of the DatabaseService
   static final DatabaseService _instance = DatabaseService._internal();
+  // Database instance
   static Database? _database;
 
   // Factory constructor to return the same instance every time
@@ -22,18 +24,22 @@ class DatabaseService {
 
   /// Initializes the database by creating the tasks table.
   Future<Database> _initDatabase() async {
+    // Get the path for the database file
     String path = join(await getDatabasesPath(), 'task_manager.db');
     return await openDatabase(
       path,
-      version: 3, // Increment the version number
+      version: 3, // Current database version
       onCreate: (Database db, int version) async {
         await _createTasksTable(db);
       },
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
+        // Handle database upgrades
         if (oldVersion < 2) {
+          // Add attachments column in version 2
           await db.execute('ALTER TABLE tasks ADD COLUMN attachments TEXT');
         }
         if (oldVersion < 3) {
+          // Add dueDate column in version 3
           await db.execute('ALTER TABLE tasks ADD COLUMN dueDate TEXT');
         }
       },
@@ -91,6 +97,7 @@ class DatabaseService {
     );
   }
 
+  /// Deletes all tasks from the database.
   Future<void> deleteAllTasks() async {
     final db = await database;
     await db.delete('tasks');

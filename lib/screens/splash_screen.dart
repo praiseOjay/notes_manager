@@ -10,7 +10,9 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+  // Animation controller for managing the fade-in effect
   late AnimationController _animationController;
+  // Animation for the fade-in effect
   late Animation<double> _fadeAnimation;
 
   @override
@@ -20,6 +22,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     _navigateToHome();
   }
 
+  /// Sets up the fade-in animation for the splash screen content
   void _setupAnimation() {
     _animationController = AnimationController(
       vsync: this,
@@ -29,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     _animationController.forward();
   }
 
-  /// Navigates to the home screen after a delay.
+  /// Navigates to the home screen after a 3-second delay
   void _navigateToHome() async {
     await Future.delayed(const Duration(seconds: 3));
     Navigator.pushReplacement(
@@ -40,6 +43,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   void dispose() {
+    // Dispose of the animation controller to free up resources
     _animationController.dispose();
     super.dispose();
   }
@@ -48,6 +52,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        // Apply a gradient background
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -64,12 +69,14 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // App icon
                 const Icon(
                   Icons.check_circle_outline,
                   size: 100,
                   color: Colors.white,
                 ),
                 const SizedBox(height: 20),
+                // App title
                 const Text(
                   'Task Management App',
                   style: TextStyle(
@@ -79,6 +86,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   ),
                 ),
                 const SizedBox(height: 10),
+                // App subtitle
                 Text(
                   'Organize your tasks efficiently',
                   style: TextStyle(
@@ -87,6 +95,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   ),
                 ),
                 const SizedBox(height: 30),
+                // Loading indicator
                 const CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),

@@ -5,10 +5,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 
+/// Screen for adding a new task or editing an existing one
 class AddEditTaskScreen extends StatefulWidget {
-  final Task? task;
+  final Task? task; // Nullable task for editing, null for adding new task
 
-  // ignore: prefer_const_constructors_in_immutables
   AddEditTaskScreen({super.key, this.task});
 
   @override
@@ -31,6 +31,7 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
   @override
   void initState() {
     super.initState();
+    // Initialize controllers with existing task data if editing
     _titleController = TextEditingController(text: widget.task?.title ?? '');
     _descriptionController = TextEditingController(text: widget.task?.description ?? '');
     _category = widget.task?.category ?? 'Work';
@@ -41,6 +42,7 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
 
   @override
   void dispose() {
+    // Dispose controllers to prevent memory leaks
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
@@ -48,6 +50,7 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Determine if dark mode is active
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDarkMode ? Colors.white : Colors.black;
     final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[100];
@@ -102,6 +105,7 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
     );
   }
 
+  // Build a text field with custom styling
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -142,6 +146,7 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
     );
   }
 
+  // Build a dropdown for selecting task category
   Widget _buildCategoryDropdown(Color textColor, Color? backgroundColor) {
     return DropdownButtonFormField<String>(
       value: _category,
@@ -182,6 +187,7 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
     );
   }
 
+  // Build a dropdown for selecting task priority
   Widget _buildPriorityDropdown(Color textColor, Color? backgroundColor) {
     return DropdownButtonFormField<String>(
       value: _priority,
@@ -216,6 +222,7 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
     );
   }
 
+  // Build a date picker for selecting the due date
   Widget _buildDueDatePicker(Color textColor, Color? backgroundColor) {
     return InkWell(
       onTap: _pickDateTime,
@@ -255,6 +262,7 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
     );
   }
 
+  // Build the attachment section for adding and displaying attachments
   Widget _buildAttachmentSection(Color textColor, Color? backgroundColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,6 +299,7 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
     );
   }
 
+  // Build a chip to display an attachment
   Widget _buildAttachmentChip(String path, Color textColor) {
     return Chip(
       label: Text(
@@ -307,7 +316,7 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
     );
   }
 
-
+  // Open file picker to select attachments
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
     if (result != null) {
@@ -317,6 +326,7 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
     }
   }
 
+  // Open date and time pickers to set the due date
   Future<void> _pickDateTime() async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -343,7 +353,8 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
     }
   }
 
- void _submitForm() {
+  // Submit the form and save the task
+  void _submitForm() {
     if (_formKey.currentState!.validate()) {
       final task = Task(
         id: widget.task?.id ?? const Uuid().v4(),
