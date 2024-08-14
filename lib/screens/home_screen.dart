@@ -88,7 +88,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Builds the list of tasks with pull-to-refresh and dismissible functionality
   Widget _buildTaskList() {
-    return ListView.builder(
+    return RefreshIndicator(
+      onRefresh: () async {
+        _loadTasks();
+      },
+      child: ListView.builder(
       itemCount: _filteredTasks.length,
       itemBuilder: (context, index) {
         final task = _tasks[index];
@@ -133,6 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       },
+     ),
     );
   }
 }
