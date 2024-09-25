@@ -1,10 +1,6 @@
-# notes_manager
+# Notes Manager App - Flutter Version
 
-A cross-platform mobile application for efficient task management, developed using both Flutter and React Native frameworks.
-
-## Overview
-
-This Task Management App is part of a comparative study between Flutter and React Native for small-scale mobile application development. The app allows users to create, edit, organize, and delete tasks with offline capabilities.
+A cross-platform mobile application for efficient task management, developed using Flutter.
 
 ## Features
 
@@ -18,55 +14,60 @@ This Task Management App is part of a comparative study between Flutter and Reac
 
 ## Technologies Used
 
-### Flutter Version
-- Dart programming language
 - Flutter SDK
+- Dart programming language
 - sqflite for local database
 - Provider for state management
+- intl package for date formatting
 
 ## Installation
 
-### Flutter Version
-
-1. Ensure you have Flutter installed on your machine
-2. Clone the repository
-3. Navigate to the Flutter project directory
-4. Run `flutter pub get` to install dependencies
-5. Connect a device or start an emulator
-6. Run `flutter run` to start the app
+1. Ensure you have Flutter SDK installed on your machine
+2. Clone the repository:
+   ```
+   git clone https://github.com/praiseOjay/notes_manager.git
+   ```
+3. Navigate to the project directory:
+   ```
+   cd notes_manager
+   ```
+4. Get dependencies:
+   ```
+   flutter pub get
+   ```
+5. Run the app:
+   ```
+   flutter run
+   ```
 
 ## Project Structure
 
-Both versions of the app follow the MVVM (Model-View-ViewModel) architecture pattern:
+The app follows the MVVM (Model-View-ViewModel) architecture:
 
-- `models/`: Contains data models (e.g., Task)
-- `screens/`: UI components and screens
-- `services/`: Business logic and data operations
-- `utils/`: Utility functions and helpers
+- `lib/models/`: Data models (e.g., Task)
+- `lib/screens/`: UI screens
+- `lib/widgets/`: Reusable UI components
+- `lib/services/`: Business logic and data operations
+- `lib/utils/`: Utility functions and helpers
 
 ## Testing
 
-The project includes unit, integration, and performance tests for both Flutter and React Native versions. To run the tests:
+To run the tests:
 
-### Flutter
 ```
 flutter test
 ```
 
-### React Native
-```
-npm test
-```
 ## Contributing
 
-Contributions to improve the app or extend the comparison study are welcome. Please feel free to submit issues or pull requests.
+Contributions to improve the app are welcome. Please feel free to submit issues or pull requests.
 
-## Acknowledgements
+## License
 
-This project was developed as part of an MSc Software Engineering dissertation, comparing Flutter and React Native for small-scale mobile application development.
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
 
 ## Contact
 
 Praise Ojerinola - Ojerinolapraise@gmail.com
 
-Project Link: [https://github.com/praiseojay/task-management-app](https://github.com/praiseOjay/notes_manager.git)
+Project Link: https://github.com/praiseOjay/notes_manager.git
