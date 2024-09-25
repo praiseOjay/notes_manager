@@ -46,7 +46,7 @@ Both versions of the app follow the MVVM (Model-View-ViewModel) architecture pat
 
 ## Testing
 
-The project includes unit tests, integration tests, and performance tests for both Flutter and React Native versions. To run the tests:
+The project includes unit, integration, and performance tests for both Flutter and React Native versions. To run the tests:
 
 ### Flutter
 ```
@@ -69,4 +69,4 @@ This project was developed as part of an MSc Software Engineering dissertation, 
 
 Praise Ojerinola - Ojerinolapraise@gmail.com
 
-Project Link: (https://github.com/praiseojay/task-management-app)
+Project Link: [https://github.com/praiseojay/task-management-app](https://github.com/praiseOjay/notes_manager.git)
